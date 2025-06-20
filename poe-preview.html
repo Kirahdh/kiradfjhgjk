@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifestar Desejos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'bg-light': '#FFFFFF',
+                        'bg-dark': '#181818'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .wish-card {
+            transition: all 0.3s ease;
+        }
+        .wish-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .dark .wish-card:hover {
+            box-shadow: 0 10px 25px rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-white min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center gradient-bg">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">✨ Manifestar Desejos</h1>
+                <p class="text-gray-600 dark:text-gray-300">Entre na sua conta para acessar seus desejos</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Digite seu email" required="">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="password" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Digite sua senha" required="">
+                </div>
+                
+                <button type="submit" class="w-full bg-primary hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105">
+                    Entrar
+                </button>
+            </form>
+            
+            <div id="loginError" class="hidden mt-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 rounded-lg text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="appScreen" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-primary">✨ Meus Desejos</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600 dark:text-gray-300" id="userEmail"></span>
+                    <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-6xl mx-auto px-4 py-8">
+            <!-- Add Wish Form -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Manifestar Novo Desejo</h2>
+                <form id="wishForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Título do Desejo</label>
+                        <input type="text" id="wishTitle" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ex: Conseguir um novo emprego" required="">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descrição Detalhada</label>
+                        <textarea id="wishDescription" rows="4" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Descreva seu desejo em detalhes, visualize como seria alcançá-lo..." required=""></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Categoria</label>
+                            <select id="wishCategory" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="carreira">💼 Carreira</option>
+                                <option value="relacionamento">❤️ Relacionamento</option>
+                                <option value="saude">🏥 Saúde</option>
+                                <option value="financeiro">💰 Financeiro</option>
+                                <option value="pessoal">🌟 Pessoal</option>
+                                <option value="viagem">✈️ Viagem</option>
+                                <option value="outro">🎯 Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prazo Desejado</label>
+                            <input type="date" id="wishDeadline" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105">
+                        ✨ Manifestar Desejo
+                    </button>
+                </form>
+            </div>
+
+            <!-- Wishes List -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Meus Desejos Manifestados</h2>
+                    <div class="flex space-x-2">
+                        <select id="filterCategory" class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Todas as categorias</option>
+                            <option value="carreira">💼 Carreira</option>
+                            <option value="relacionamento">❤️ Relacionamento</option>
+                            <option value="saude">🏥 Saúde</option>
+                            <option value="financeiro">💰 Financeiro</option>
+                            <option value="pessoal">🌟 Pessoal</option>
+                            <option value="viagem">✈️ Viagem</option>
+                            <option value="outro">🎯 Outro</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="wishesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Wishes will be displayed here -->
+                </div>
+                
+                <div id="noWishes" class="text-center py-12 text-gray-500 dark:text-gray-400">
+                    <div class="text-6xl mb-4">🌟</div>
+                    <p class="text-lg">Você ainda não manifestou nenhum desejo.</p>
+                    <p class="text-sm">Comece manifestando seu primeiro desejo acima!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // In-memory storage (since localStorage is not available in iframe)
+        let userData = {
+            wishes: [],
+            currentUser: null
+        };
+
+        // Valid credentials
+        const validCredentials = {
+            email: 'kiragame294@gmail.com',
+            password: 'mv101010'
+        };
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (email === validCredentials.email && password === validCredentials.password) {
+                userData.currentUser = email;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = email;
+                displayWishes();
+            } else {
+                errorDiv.textContent = 'Email ou senha incorretos. Tente novamente.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            userData.currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appScreen').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').classList.add('hidden');
+        });
+
+        // Add wish functionality
+        document.getElementById('wishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('wishTitle').value;
+            const description = document.getElementById('wishDescription').value;
+            const category = document.getElementById('wishCategory').value;
+            const deadline = document.getElementById('wishDeadline').value;
+            
+            const wish = {
+                id: Date.now(),
+                title: title,
+                description: description,
+                category: category,
+                deadline: deadline,
+                createdAt: new Date().toLocaleDateString('pt-BR'),
+                status: 'manifestando'
+            };
+            
+            userData.wishes.push(wish);
+            this.reset();
+            displayWishes();
+            
+            // Show success message
+            showNotification('✨ Desejo manifestado com sucesso!', 'success');
+        });
+
+        // Display wishes
+        function displayWishes() {
+            const wishesContainer = document.getElementById('wishesList');
+            const noWishesDiv = document.getElementById('noWishes');
+            const filterCategory = document.getElementById('filterCategory').value;
+            
+            let filteredWishes = userData.wishes;
+            if (filterCategory) {
+                filteredWishes = userData.wishes.filter(wish => wish.category === filterCategory);
+            }
+            
+            if (filteredWishes.length === 0) {
+                wishesContainer.classList.add('hidden');
+                noWishesDiv.classList.remove('hidden');
+                return;
+            }
+            
+            wishesContainer.classList.remove('hidden');
+            noWishesDiv.classList.add('hidden');
+            
+            wishesContainer.innerHTML = filteredWishes.map(wish => {
+                const categoryIcons = {
+                    carreira: '💼',
+                    relacionamento: '❤️',
+                    saude: '🏥',
+                    financeiro: '💰',
+                    pessoal: '🌟',
+                    viagem: '✈️',
+                    outro: '🎯'
+                };
+                
+                return `
+                    <div class="wish-card bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900 dark:to-blue-900 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-2xl">${categoryIcons[wish.category] || '🎯'}</span>
+                            <button onclick="toggleWishStatus(${wish.id})" class="text-xs px-2 py-1 rounded-full ${wish.status === 'realizado' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+                                ${wish.status === 'realizado' ? '✅ Realizado' : '⏳ Manifestando'}
+                            </button>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 dark:text-white mb-2">${wish.title}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">${wish.description}</p>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                            <div>📅 Criado em: ${wish.createdAt}</div>
+                            ${wish.deadline ? `<div>⏰ Prazo: ${new Date(wish.deadline).toLocaleDateString('pt-BR')}</div>` : ''}
+                        </div>
+                        <button onclick="deleteWish(${wish.id})" class="mt-3 text-red-500 hover:text-red-700 text-xs">
+                            🗑️ Excluir
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle wish status
+        function toggleWishStatus(wishId) {
+            const wish = userData.wishes.find(w => w.id === wishId);
+            if (wish) {
+                wish.status = wish.status === 'manifestando' ? 'realizado' : 'manifestando';
+                displayWishes();
+                showNotification(wish.status === 'realizado' ? '🎉 Parabéns! Desejo realizado!' : '⏳ Desejo voltou para manifestação', 'success');
+            }
+        }
+
+        // Delete wish
+        function deleteWish(wishId) {
+            userData.wishes = userData.wishes.filter(w => w.id !== wishId);
+            displayWishes();
+            showNotification('🗑️ Desejo excluído', 'info');
+        }
+
+        // Filter wishes
+        document.getElementById('filterCategory').addEventListener('change', displayWishes);
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('App de Manifestação de Desejos carregado');
+        });
+    </script>
+
+
+</body></html>
